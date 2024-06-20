@@ -1,7 +1,23 @@
+#![warn(clippy::pedantic, clippy::nursery, clippy::restriction)]
+#![allow(
+    clippy::must_use_candidate,
+    clippy::missing_docs_in_private_items,
+    clippy::blanket_clippy_restriction_lints,
+    clippy::single_call_fn,
+    clippy::print_stderr,
+    clippy::implicit_return,
+    clippy::arithmetic_side_effects,
+    clippy::expect_used,
+    clippy::question_mark_used,
+    clippy::shadow_reuse,
+    clippy::print_stdout
+)]
+
+use core::time::Duration;
 use std::{
     fs::File,
     io::{self, BufReader, BufWriter},
-    time::{Duration, SystemTime},
+    time::SystemTime,
 };
 
 use clap::{Arg, Command};
@@ -88,6 +104,8 @@ pub fn is_file_old(file_path: &str) -> bool {
         .map_or(true, |last_modification| last_modification < seven_days_ago)
 }
 
+/// # Panics
+/// If the formula file couldn't be downloaded from <https://formulae.brew.sh/api/formula.json>
 fn get_core_formulas(file_name: &str) {
     let response = ureq::get("https://formulae.brew.sh/api/formula.json")
         .call()
@@ -104,7 +122,7 @@ fn get_formulas_from_file(
     let reader = BufReader::new(File::open(file_name)?);
     let formulas: Vec<Formula> = serde_json::from_reader(reader)?;
     let lang_name = lang_name.to_owned();
-    let lang_at = lang_name.to_owned() + "@";
+    let lang_at = format!("{lang_name}@");
     Ok(formulas
         .into_iter()
         .filter(move |formula| {
@@ -120,6 +138,8 @@ fn get_formulas_from_file(
         .map(|formula| formula.name))
 }
 
+/// # Panics
+/// Will panic if the length of the name of the programming language is at least 30 characters long or the formulas file couldn't be read.
 pub fn get_package_count(file_name: &str, lang: &str) {
     assert!(
         lang.len() <= 30,
