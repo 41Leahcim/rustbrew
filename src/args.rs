@@ -85,4 +85,9 @@ impl Args {
     pub fn language(&self) -> &str {
         &self.language
     }
+
+    /// Return whether to display the build dependencies
+    pub const fn build_dep(&self) -> bool {
+        self.build_dep
+    }
 }

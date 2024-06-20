@@ -11,7 +11,8 @@
     clippy::question_mark_used,
     clippy::shadow_reuse,
     clippy::print_stdout,
-    clippy::missing_trait_methods
+    clippy::missing_trait_methods,
+    clippy::use_debug
 )]
 
 use args::Args;
@@ -144,10 +145,40 @@ fn get_package_count(file_name: &str, lang: &str) {
     println!("{pkg_count}");
 }
 
+fn get_all_build_dep(file_name: &str) -> Result<(), Error> {
+    // Open the file
+    let reader = BufReader::new(File::open(file_name)?);
+
+    // Read the formulas
+    let formulas: Vec<Formula> = serde_json::from_reader(reader)?;
+
+    // Add the unique build dependencies
+    let build_deps = formulas.iter().flat_map(Formula::build_dependencies).fold(
+        Vec::new(),
+        |mut dependencies, dependency| {
+            if !dependencies.contains(dependency) {
+                dependencies.push(dependency.to_owned());
+            }
+            dependencies
+        },
+    );
+
+    // Print the number and names of build dependencies
+    println!(
+        "All Build Dependencies Count: {}\n{build_deps:?}",
+        build_deps.len()
+    );
+    Ok(())
+}
+
 fn main() {
     // Parse arguments passed by the user
     let args = Args::parse();
 
     // Download and display the packages using the passed language as a dependency
     get_package_count(CORE_FORMULAS_FILE, args.language());
+
+    if args.build_dep() {
+        get_all_build_dep(CORE_FORMULAS_FILE).expect("Failed to read build dependencies");
+    }
 }
