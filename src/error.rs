@@ -1,5 +1,6 @@
 use std::io;
 
+/// An enum for the error types received by this application
 #[derive(Debug)]
 #[allow(dead_code)]
 pub enum Error {
