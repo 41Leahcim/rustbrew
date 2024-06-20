@@ -20,7 +20,7 @@ impl CommandFactory for Args {
                 .help("get count of all packages which have this language/build-system/library as a dependency (required)"),
             Arg::new("build-dep")
                 .short('b')
-                .help("show building dependencies for all packages in Homebrew Core")
+                .help("show building dependencies for all packages in Homebrew Core").num_args(0)
         ])
     }
 
@@ -39,9 +39,7 @@ impl FromArgMatches for Args {
         }, String::to_owned);
 
         // Take the build-dep argument or default to false
-        let build_dep = matches
-            .get_one::<bool>("build-dep")
-            .map_or_else(|| false, bool::to_owned);
+        let build_dep = matches.get_flag("build-dep");
 
         // Return the result
         Ok(Self {
@@ -57,8 +55,8 @@ impl FromArgMatches for Args {
         }
 
         // Take and store the new build dependency argument
-        if let Some(build_dep) = matches.get_one::<bool>("build-dep").copied() {
-            self.build_dep = build_dep;
+        if matches.get_flag("build-dep") {
+            self.build_dep = true;
         }
         Ok(())
     }
