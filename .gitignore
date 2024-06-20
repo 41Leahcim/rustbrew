@@ -7,3 +7,8 @@ gobrew
 # result files & data
 core_formulas.json
 formulas
+
+
+# Added by cargo
+
+/target
